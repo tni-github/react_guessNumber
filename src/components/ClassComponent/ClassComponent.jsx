@@ -29,7 +29,6 @@ export class ClassComponent extends React.Component {
 
     this.setState(state => {
       if (this.state.gameEnd !== true) {
-        console.log(state);
         if (!this.state.userNumber && this.state.count === 0 ||
           !this.state.userNumber) {
           return {
