@@ -4,53 +4,79 @@ import PropTypes from 'prop-types';
 
 export class ClassComponent extends React.Component {
   state = {
-    result: 'Игра с угадыванием числа. Введите число:',
+    result: `Игра с угадыванием числа. 
+    Введите число от ${this.props.min} до ${this.props.max}.`,
     userNumber: '',
-    prevUserNumber: '',
     randomNumber:
-      Math.floor((Math.random() * this.props.max - this.props.min)) + this.props.min,
+      Math.floor((Math.random() * (this.props.max - this.props.min + 1))) +
+      this.props.min,
     count: 0,
-    gameEnd: 'false',
+    gameEnd: false,
   };
   // this.handleSubmit = this.handleSubmit.bind(this);
 
   handleSubmit = e => {
     e.preventDefault();
-    this.setState(state => ({
-      count: state.count + 1,
-    }));
 
     this.setState(state => {
-      if (!this.state.prevUserNumber && this.state.count === 0 && this.state.userNumber === '') {
+      if (this.state.userNumber && this.state.userNumber >= this.props.min &&
+        this.state.userNumber <= this.props.max) {
         return {
-          result: 'Вы ничего не ввели. Введите число!'
+          count: ++state.count,
         };
       }
-
-      if (!this.state.prevUserNumber && this.state.userNumber === '') {
-        return {
-          result: `Вы ничего не ввели. Введите число!`
-        };
-      }
-
-      if (state.prevUserNumber > state.randomNumber) {
-        return {
-          result: `${state.prevUserNumber} больше загаданного`,
-        };
-      }
-
-      if (state.prevUserNumber < state.randomNumber) {
-        return {
-          result: `${state.prevUserNumber} меньше загаданного`,
-        };
-      }
-
-      return {
-        result: `Вы угадали, загаданное число ${state.prevUserNumber},
-        попыток ${state.count}`,
-        gameEnd: 'true',
-      };
     });
+
+    this.setState(state => {
+      if (this.state.gameEnd !== true) {
+        console.log(state);
+        if (!this.state.userNumber && this.state.count === 0 ||
+          !this.state.userNumber) {
+          return {
+            result: `Вы ничего не ввели. Введите число от 
+            ${this.props.min} до ${this.props.max}`
+          };
+        } else if (state.userNumber < this.props.min ||
+          state.userNumber > this.props.max) {
+          return {
+            result: `Вы ввели число за пределами диапазона от 
+              ${this.props.min} до ${this.props.max}. Повторите ввод.`,
+            userNumber: '',
+          };
+        } else if (state.userNumber > state.randomNumber) {
+          return {
+            result: `${state.userNumber} больше загаданного, попытка № 
+            ${this.state.count}`,
+            userNumber: '',
+          };
+        } else if (state.userNumber < state.randomNumber) {
+          return {
+            result: `${state.userNumber} меньше загаданного, попытка № 
+            ${this.state.count}`,
+            userNumber: '',
+          };
+        } else {
+          return {
+            result: `Вы угадали, загаданное число ${state.userNumber},
+          общее число попыток ${state.count}`,
+            userNumber: '',
+            gameEnd: true,
+          };
+        }
+      } else {
+        return {
+          result: `Новая игра с угадыванием числа.
+                  Введите число от ${this.props.min} до ${this.props.max}.`,
+          randomNumber:
+            Math.floor((Math.random() * (this.props.max -
+              this.props.min + 1))) +
+            this.props.min,
+          count: 0,
+          gameEnd: false,
+        };
+      }
+    }
+    );
   };
 
   handleChange = e => {
@@ -58,25 +84,6 @@ export class ClassComponent extends React.Component {
       userNumber: e.target.value,
     });
   };
-
-  handleClickGuess = () => {
-    this.setState({
-      prevUserNumber: this.state.userNumber,
-      userNumber: '',
-    });
-  };
-
-  handleClickStartGame = () => {
-    this.setState({
-      result: 'Игра началась заново. Введите число:',
-      prevUserNumber: '',
-      randomNumber:
-        Math.floor((Math.random() * this.props.max - this.props.min)) + this.props.min,
-      count: 0,
-      gameEnd: 'false',
-    });
-  };
-
 
   render() {
     return (
@@ -88,16 +95,19 @@ export class ClassComponent extends React.Component {
             Угадай число
           </label>
 
-          <input className={style.input} type='number' id='user_number'
-            onChange={this.handleChange} value={this.state.userNumber}
+          <input
+            className={style.input}
+            type='number'
+            onChange={this.handleChange}
+            value={this.state.userNumber}
+            disabled={this.state.gameEnd}
           />
 
-          <button className={style.btn} onClick={this.handleClickGuess}>Угадать</button>
+          <button className={style.btn}>
+            {this.state.gameEnd === false ?
+              'Угадать' : 'Сыграть ещё'}
+          </button>
         </form>
-
-        <div className={style.start}>
-          {this.state.gameEnd === 'true' ? <button className={style.btn} onClick={this.handleClickStartGame}>Сыграть ещё</button> : <></>}
-        </div>
       </div>
     );
   }

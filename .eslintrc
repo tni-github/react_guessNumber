@@ -208,7 +208,7 @@
     "max-len": [
       "error",
       {
-        "code": 200,
+        "code": 80,
         "tabWidth": 2,
         "ignoreUrls": true,
         "ignorePattern": "goog.(module|require)"
